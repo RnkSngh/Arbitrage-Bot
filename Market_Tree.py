@@ -1,17 +1,8 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Nov 20 22:33:42 2018
-
-@author: raunak
-"""
 
 '''
-A MarketTree is a bi-directional graph where each node represents an asset, and bi-directional links between nodes represent the bid and ask price at the time of the latest data retrieval. Thus, the product of links represents the quantity of the end asset obtained after following a path connecting the beginning and end asset.
+A market tree is a bi-directional graph that represents a network for a particular exchange. The market tree is recursively defined (i.e. all assets in an exchange represent the market tree themsevlves
 
-For example, take A, B and C as different assets (each represented as a node in the graph) which are traded at a bid and ask price (each represented as a directional link connecting two nodes) per each pair. Trading 1 unit of A for B at an ask price of x would yield x units of B. Trading x units of B for C at the ask price of y would yield x*y units of C. Thus, the quantity of the end asset obtained is the distance (i.e. the product of the links) along the path from asset A to asset C.
-
- Consequently, any cyclical path with a distance greater than 1 represents an arbitrage opportunity - a series of trades which would yield a greater quantity of the starting asset after execution. 
-
+Self.branches points to an array of Market Trees  - similar to most default implementations of a tree, all of the branches poit to trees themselves
 '''
 
 class MarketTree():
@@ -22,29 +13,73 @@ class MarketTree():
             self.branches = [] #branches is an array of [distance, MarketTree]
         self.num_branches = len(self.branches) 
 
-    def __repr__(self) -> str: #prints the first-layer of connections to the tree_root
+    """ 
+    Prints the first-layer of connections to the tree_root
+    """
+    def __repr__(self) -> str: #
         print_string=self.asset + ": "
         for branch in self.branches:
             print_string+= str(branch[0])+ "-" + str(branch[1].asset)+ ", "
         return print_string
         
+       """
+       Adds a market instance, represented by a bidirectional connection between nodes, between self and sub_tree. Each each direction represents the bid and ask price, between two assents. 
+
+       This class is used when parsing in data into a netork for a particular exchange. Due to the bi-directional nature, the branch pointer existsb both from this market and from the added market- t hus the added pinter must be added from both the market tree. Thus, this method is typically added in bid/ask pairs. 
+
+       Parameters
+       ----------
+       sub_tree : MarketTree
+           Market_Tree that represents the asset of each 
+       distance : float
+           The price to convert between self and sub_tree. 
+
+    """
     def add_branch(self, sub_tree:'MarketTree', distance:float) -> None: #adds a MarketTree onto one of the branches
         self.branches.append([float(distance), sub_tree])
         self.num_branches+=1
         return
+       
+       """
+       Returns the distance between self and the MarketTree at a given index within self's branches
 
+       This class is used from the get_max_branch function.
+       Parameters
+       ----------
+       index : int
+           The index of the branch to return the distance from self at
+        
+    """
     def get_distance(self, index:int): #returns the dstance to the branch at index
         if index>=self.num_branches: #index is out of range
             return None
         else:
             return self.branches[index][0]
+         
+         
+      """
+      Similar to get_distance, but returns the branch itself instead of the distance to the branch
+      This class is used from the get_max_branch function.
+      Parameters
+      ----------
+      index : int
+          The index of the branch that will be returned
 
+    """
     def get_branch(self, index:int): #returns the branch at index
         if index>=self.num_branches: #index is out of range
             return None
         else:
             return self.branches[index][1]
 
+          """
+      Similar to get_distance, but takes the name of the market_tree instead of the index of the market_tree. 
+      Parameters
+      ----------
+      target_asset : str
+          The name of the branch to find the distance
+    """"
+     
     def find_distance(self, target_asset:str): #given the name of an asset, finds the distance to the asset
         for branch in self.branches:
             sub_tree = branch[1] 
@@ -53,7 +88,19 @@ class MarketTree():
                 return target_distance
         return None #the target_asset is not found
 
-
+      """
+      Finds a cyclical path that starts and ends at the tree deliniated by the name target_asset Returns a string corresponding to the path that the max_path takes through the network, and the quantity of the start asset that is returned after trading along the returned path. 
+      Parameters
+      ----------
+      target_asset : str
+          The name of the MarketTree that is being found for teh cyclical path. This is used to keep track between recursive calls that aren't called at the root of the initial method call.       
+          searched_nodes : array
+          An array of all paths which have been searched in finding the maximum path. This is used only in recursive calls, and can thus be specified as an empty array when being called as a user. This argument is used to ensure that all returned subpaths are not repeated.
+          trading_fee : float
+          A float representing the amount of an asset retained after trading. This method assumes that a normalized trading fee (i.e. one that scales with the amount of asset that is traded) is applied - to specify a fixed trading fee that is independent of the amount that is traded, it can be done outside of this method and added to the ratio of the start asset that this function returns. 
+          
+          
+    """"
     def get_max_branch(self, target_asset:str, searched_nodes = None, trading_fee:float = 1 ): #searches through all possible combinations through a tree and gets the longest path leading back to the target_asset without repeating links
         MarketTree.num_calls+=1
         
