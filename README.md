@@ -14,9 +14,9 @@ For example, take A, B and C separate assets, each represented as a node in the 
  Executing one last trade to exchange 0.5 units of C for A at an ask price of 2 yields 1.5 units of A (which is more than we started with, even with the competitive bid/ask prices!). Thus, any cyclical path (i.e. starting and ending at the same node) with a distance greater than 1 represents an arbitrage opportunity - a series of trades which would yield a greater quantity of the starting asset after execution. 
  <br></p></div>
 # Repo Structure
-Market_Tree.py contains the implementation of this data structure, and a function called get_max_path which finds the longest path that starts and ends at the root of a specified target node. MarketTrees need not be limited to triangular graphs as shown in the example - the longest path can be found for any arbitrarily complex bidirectional network in O(n\*p) time, where n is the number of nodes and p is the number of connections in the network. To avoid infinite cycling, *each link between nodes is restricted to be used only once in a path* .
+```Market_Tree.py``` contains the implementation of this data structure, and a function called ```get_max_path``` which finds the longest path that starts and ends at the root of a specified target node. MarketTrees need not be limited to triangular graphs as shown in the example - the longest path can be found for any arbitrarily complex bidirectional network in O(n\*p) time, where n is the number of nodes and p is the number of connections in the network. To avoid infinite cycling, *each link between nodes is restricted to be used only once in a path* .
 
-Arbitrage_tester.py contains a basic set of unittests to test the Market_Tree implmenetaiton. 
+```Arbitrage_tester.py``` contains a basic set of unittests to test the Market_Tree implmenetaiton. 
  
-Kucoin_Arbitrage_ETL.py is a script that loads the latest Kucoin trading data into the Market_Tree structure. The script then finds and executes the greatest arbitrage opportunity, if one exists, using functions from KuCoin_Trade_Functions.py.
+```Kucoin_Arbitrage_ETL.py``` is a script that loads the latest Kucoin trading data into the ```Market_Tree``` structure. The script then finds and executes the greatest arbitrage opportunity, if one exists, using functions from ```KuCoin_Trade_Functions.py```.
 
